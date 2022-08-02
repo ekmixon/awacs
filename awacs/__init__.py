@@ -34,12 +34,14 @@ class AWSObject:
 
         # Create the list of properties set on this object by the user
         self.properties: dict = {}
-        if dictname:
-            self.resource = {
+        self.resource = (
+            {
                 dictname: self.properties,
             }
-        else:
-            self.resource = self.properties
+            if dictname
+            else self.properties
+        )
+
         self.__initialized = True
 
         # Now that it is initialized, populate it with the kwargs
@@ -90,13 +92,13 @@ class AWSObject:
             else:
                 self._raise_type(name, value, expected_type)
 
-        full_class_name = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
+        full_class_name = f"{self.__class__.__module__}.{self.__class__.__name__}"
         raise AttributeError(
             "'%s' object does not support attribute '%s'" % (full_class_name, name)
         )
 
     def _raise_type(self, name: str, value: Any, expected_type: Any) -> NoReturn:
-        raise TypeError("%s is %s, expected %s" % (name, type(value), expected_type))
+        raise TypeError(f"{name} is {type(value)}, expected {expected_type}")
 
     def validate(self) -> None:
         pass
@@ -104,7 +106,7 @@ class AWSObject:
     def JSONrepr(self) -> dict:
         for k, v in self.props.items():
             if v[1] and k not in self.properties:
-                raise ValueError("Resource %s required in type %s" % (k, type(self)))
+                raise ValueError(f"Resource {k} required in type {type(self)}")
         self.validate()
         return self.resource
 
@@ -141,10 +143,7 @@ T = TypeVar("T")
 
 class AWSHelperFn:
     def getdata(self, data: Union[AWSObject, T]) -> Union[str, None, T]:
-        if isinstance(data, AWSObject):
-            return data.name
-        else:
-            return data
+        return data.name if isinstance(data, AWSObject) else data
 
     def to_json(self, indent: int = 4, sort_keys: bool = True) -> str:
         p = self

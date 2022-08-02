@@ -53,9 +53,9 @@ class TestAWSObject(unittest.TestCase):
 
 class TestAWSProperty(unittest.TestCase):
     def test_prop_value_type_mismatch_expect_list(self):
+
         class InvalidClass:
             """Class of invalid type."""
-
         tests_values = ["val", {"key": "val"}, {"val"}, tuple("val"), InvalidClass()]
 
         for val in tests_values:
@@ -63,7 +63,7 @@ class TestAWSProperty(unittest.TestCase):
                 TypeValidationObject(ExpectList=val)
             self.assertEqual(
                 exc.exception.args[0],
-                "ExpectList is %s, expected %s" % (type(val), type(list())),
+                f"ExpectList is {type(val)}, expected {type([])}",
             )
 
     def test_prop_value_type_expect_list(self):

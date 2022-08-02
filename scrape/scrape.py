@@ -201,22 +201,22 @@ async def extract_actions(html: str) -> Tuple[str, str, Set[str]]:
 async def write_service(
     service_prefix: str, service_name: str, actions: Set[str]
 ) -> None:
-    content: List[str] = []
-    content.append(HEADER)
+    content: List[str] = [
+        HEADER,
+        f'service_name = "{service_name}"',
+        f'prefix = "{service_prefix}"',
+        "",
+        "",
+        CLASSES_S3 if service_prefix == "s3" else CLASSES,
+        "",
+    ]
 
-    content.append(f'service_name = "{service_name}"')
-    content.append(f'prefix = "{service_prefix}"')
-    content.append("")
-    content.append("")
-    content.append(CLASSES_S3 if service_prefix == "s3" else CLASSES)
-    content.append("")
-
+    action_string = '{action} = Action("{action}")'
     for action in sorted(actions):
         action = action.strip()
         # Handle action such as "ReEncrypt*"
         if action[-1] == "*":
             action = action[:-1]
-        action_string = '{action} = Action("{action}")'
         content.append(action_string.format(action=action))
 
     if content[-1] != "":

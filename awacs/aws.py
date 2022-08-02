@@ -80,13 +80,7 @@ class BaseARN(AWSHelperFn):
         ):
             region = ""
 
-        self.data = "arn:%s:%s:%s:%s:%s" % (
-            aws_partition,
-            service,
-            region,
-            account,
-            resource,
-        )
+        self.data = f"arn:{aws_partition}:{service}:{region}:{account}:{resource}"
 
     def JSONrepr(self) -> str:
         return self.data
@@ -114,10 +108,7 @@ class ConditionElement(AWSHelperFn, metaclass=ABCMeta):
             self.cond_dict = data
 
     def get_dict(self) -> dict:
-        if self.cond_dict:
-            return self.cond_dict
-        else:
-            return {self.key: self.value}
+        return self.cond_dict or {self.key: self.value}
 
     @property
     @abstractmethod
@@ -134,16 +125,13 @@ class Condition(AWSHelperFn):
         elif isinstance(conditions, list):
             for c in conditions:
                 if not isinstance(c, ConditionElement):
-                    raise ValueError("ConditionElement is type %s" % (type(c),))
+                    raise ValueError(f"ConditionElement is type {type(c)}")
             self.conditions = conditions
         else:
             raise TypeError
 
     def JSONrepr(self) -> dict:
-        d = {}
-        for c in self.conditions:
-            d[c.condition] = c.get_dict()
-        return d
+        return {c.condition: c.get_dict() for c in self.conditions}
 
 
 class Principal(AWSHelperFn):
@@ -160,8 +148,9 @@ class Principal(AWSHelperFn):
                 raise ValueError("Must provide resources with principal.")
             if principal not in self.VALID_PRINCIPALS:
                 raise ValueError(
-                    "Principal must be one of: %s" % (", ".join(self.VALID_PRINCIPALS))
+                    f'Principal must be one of: {", ".join(self.VALID_PRINCIPALS)}'
                 )
+
             self.data = {principal: resources}
 
     def JSONrepr(self) -> Union[Literal["*"], Dict[str, Any]]:

@@ -21,7 +21,7 @@ def make_simple_assume_policy(*principals: Any) -> Policy:
 def make_service_domain_name(service: str, region: str = "") -> str:
     """Helper function for creating proper service domain names."""
     tld = ".com.cn" if region == "cn-north-1" else ".com"
-    return "{}.amazonaws{}".format(service, tld)
+    return f"{service}.amazonaws{tld}"
 
 
 def get_codedeploy_assumerole_policy(region: str = "") -> Policy:
